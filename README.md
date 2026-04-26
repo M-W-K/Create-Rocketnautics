@@ -38,7 +38,7 @@ Mechanism for creating multi-stage rockets.
 ---
 
 ## 🌌 Space Exploration
-The mod includes a full **Space** dimension. By overcoming gravity and the upper atmosphere, players enter orbit where different rules apply: vacuum, microgravity, and the ability to build real space stations using Create mechanisms.
+There are no separate "space dimensions" or loading screens. Space is reached seamlessly by flying high enough! By overcoming gravity and leaving the thick layers of the atmosphere (above Y=1000), players enter orbit where different rules apply: vacuum, microgravity, and the ability to build real space stations using Create mechanisms.
 
 ---
 
