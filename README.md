@@ -6,7 +6,7 @@
 
 **Create: Rocketnautics** is an industrial-aerospace addon for the **Create** mod. It allows players to build realistic, physics-based rockets, launch them into space, and control them with precision.
 
-Unlike many space mods where rockets are just scripted "elevators", this mod utilizes the **Sable / Valkyrien Skies 2** physics engine, turning ships into real physical objects. Thrust, center of mass, orbital mechanics, and stage separation - it's all here, similar to *Kerbal Space Program*!
+Unlike many space mods where rockets are just scripted "elevators", this mod utilizes the **Sable** physics engine (Create: Aeronautics), turning ships into real physical objects. Thrust, center of mass, orbital mechanics, and stage separation - it's all here, similar to *Kerbal Space Program*!
 
 ---
 
@@ -48,7 +48,7 @@ The mod includes a full **Space** dimension. By overcoming gravity and the upper
 * **Java 21**
 * **NeoForge** 21.1.228+
 * **Create** 1.21.1
-* **Sable / Valkyrien Skies 2**
+* **Create: Aeronautics** (Sable)
 
 ### Setup
 1. Clone the repository.
