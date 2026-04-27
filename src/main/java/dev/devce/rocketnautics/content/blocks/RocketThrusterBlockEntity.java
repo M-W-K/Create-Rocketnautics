@@ -19,7 +19,6 @@ import net.minecraft.util.RandomSource;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Blocks;
-import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.material.Fluids;
@@ -115,12 +114,12 @@ public class RocketThrusterBlockEntity extends SmartBlockEntity implements Block
         }
 
         blockEntity.tick();
+        boolean active = blockEntity.isActive();
         
         if (level.isClientSide()) {
             blockEntity.updateSound();
             
-            if (blockEntity.isActive()) {
-                Direction nozzle = blockEntity.getThrustDirection();
+            if (active) {
                 Vector3d pDir = blockEntity.getParticleDirection();
                 
                 double x = pos.getX() + 0.5 + pDir.x() * 0.7;
@@ -162,13 +161,13 @@ public class RocketThrusterBlockEntity extends SmartBlockEntity implements Block
             }
         }
         
-        if (blockEntity.isActive()) {
+        if (active) {
             if (blockEntity.ignitionTicks < 100) blockEntity.ignitionTicks++;
         } else {
             if (blockEntity.ignitionTicks > 0) blockEntity.ignitionTicks--;
         }
         
-        if (blockEntity.isActive()) {
+        if (active) {
             Direction nozzle = blockEntity.getThrustDirection();
             int power = blockEntity.getCurrentPower();
             int visualPower = (int)(power * 2.85f);
@@ -176,8 +175,9 @@ public class RocketThrusterBlockEntity extends SmartBlockEntity implements Block
             Vec3 start = Vec3.atCenterOf(pos).add(nozzle.getStepX() * 0.5, nozzle.getStepY() * 0.5, nozzle.getStepZ() * 0.5);
             Vec3 end = start.add(nozzle.getStepX() * reach, nozzle.getStepY() * reach, nozzle.getStepZ() * reach);
             AABB damageArea = new AABB(start, end).inflate(0.5);
-            
-            level.getEntitiesOfClass(LivingEntity.class, damageArea).forEach(entity -> {
+
+            List<LivingEntity> affectedEntities = level.getEntitiesOfClass(LivingEntity.class, damageArea);
+            affectedEntities.forEach(entity -> {
                 if (entity.isAlive()) {
                     double pushStrength = (visualPower / 150.0);
                     entity.push(nozzle.getStepX() * pushStrength, nozzle.getStepY() * pushStrength, nozzle.getStepZ() * pushStrength);
@@ -210,7 +210,7 @@ public class RocketThrusterBlockEntity extends SmartBlockEntity implements Block
                     if (targetState.isCollisionShapeFullBlock(level, targetPos)) break;
                 }
                 
-                level.getEntitiesOfClass(LivingEntity.class, damageArea).forEach(entity -> {
+                affectedEntities.forEach(entity -> {
                     if (entity.isAlive()) {
                         float damage = (float) (visualPower / 10.0);
                         entity.hurt(level.damageSources().lava(), damage);

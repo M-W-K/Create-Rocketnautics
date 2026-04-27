@@ -27,6 +27,8 @@ import org.joml.Vector3d;
 import java.util.List;
 
 public class BoosterThrusterBlockEntity extends SmartBlockEntity implements BlockEntitySubLevelActor, IThruster, com.simibubi.create.api.equipment.goggles.IHaveGoggleInformation {
+    private static final long FUEL_SCAN_CACHE_TICKS = 5L;
+
     public ScrollValueBehaviour thrustPower;
     public int ignitionTicks = 0;
 
@@ -58,8 +60,8 @@ public class BoosterThrusterBlockEntity extends SmartBlockEntity implements Bloc
     }
 
     public static void tick(Level level, BlockPos pos, BlockState state, BoosterThrusterBlockEntity blockEntity) {
+        boolean active = blockEntity.isActive();
         if (!level.isClientSide) {
-            boolean active = blockEntity.isActive();
             if (active != blockEntity.currentlyBurning) {
                 blockEntity.currentlyBurning = active;
                 blockEntity.sendData();
@@ -71,7 +73,7 @@ public class BoosterThrusterBlockEntity extends SmartBlockEntity implements Bloc
         if (level.isClientSide()) {
             blockEntity.updateSound();
             
-            if (blockEntity.isActive()) {
+            if (active) {
                 BlockPos fuelPos = blockEntity.findFuelPos();
                 if (fuelPos != null) {
                     for (int i = 0; i < 2; i++) {
@@ -121,7 +123,7 @@ public class BoosterThrusterBlockEntity extends SmartBlockEntity implements Bloc
             }
         }
         
-        if (blockEntity.isActive()) {
+        if (active) {
             if (blockEntity.ignitionTicks < 100) blockEntity.ignitionTicks++;
         } else {
             if (blockEntity.ignitionTicks > 0) {
@@ -129,7 +131,7 @@ public class BoosterThrusterBlockEntity extends SmartBlockEntity implements Bloc
             }
         }
         
-        if (!level.isClientSide && blockEntity.isActive()) {
+        if (!level.isClientSide && active) {
             blockEntity.handleHeat();
             blockEntity.consumeFuel();
         }
@@ -144,7 +146,8 @@ public class BoosterThrusterBlockEntity extends SmartBlockEntity implements Bloc
         Vec3 end = start.add(nozzle.getStepX() * reach, nozzle.getStepY() * reach, nozzle.getStepZ() * reach);
         AABB damageArea = new AABB(start, end).inflate(0.5);
 
-        level.getEntitiesOfClass(LivingEntity.class, damageArea).forEach(entity -> {
+        List<LivingEntity> affectedEntities = level.getEntitiesOfClass(LivingEntity.class, damageArea);
+        affectedEntities.forEach(entity -> {
             if (entity.isAlive()) {
                 double pushStrength = (visualPower / 150.0);
                 entity.push(nozzle.getStepX() * pushStrength, nozzle.getStepY() * pushStrength, nozzle.getStepZ() * pushStrength);
@@ -172,7 +175,7 @@ public class BoosterThrusterBlockEntity extends SmartBlockEntity implements Bloc
                 if (targetState.isCollisionShapeFullBlock(level, targetPos)) break;
             }
 
-            level.getEntitiesOfClass(LivingEntity.class, damageArea).forEach(entity -> {
+            affectedEntities.forEach(entity -> {
                 if (entity.isAlive()) {
                     entity.hurt(level.damageSources().lava(), (float) (visualPower / 10.0));
                     entity.setRemainingFireTicks(entity.getRemainingFireTicks() + 40);
@@ -240,6 +243,9 @@ public class BoosterThrusterBlockEntity extends SmartBlockEntity implements Bloc
     private boolean ignited = false;
     private boolean isSpent = false;
     private int fuelTicks = 0;
+    private BlockPos cachedFuelPos = null;
+    private long cachedFuelPosTick = Long.MIN_VALUE;
+    private boolean fuelCacheValid = false;
 
     public boolean isActive() {
         if (level != null && level.isClientSide) return currentlyBurning;
@@ -280,6 +286,21 @@ public class BoosterThrusterBlockEntity extends SmartBlockEntity implements Bloc
     }
 
     private BlockPos findFuelPos() {
+        if (level != null) {
+            long gameTime = level.getGameTime();
+            if (fuelCacheValid && gameTime - cachedFuelPosTick <= FUEL_SCAN_CACHE_TICKS) {
+                return cachedFuelPos;
+            }
+        }
+
+        BlockPos scannedFuelPos = scanFuelPos();
+        cachedFuelPos = scannedFuelPos;
+        fuelCacheValid = true;
+        cachedFuelPosTick = level != null ? level.getGameTime() : Long.MIN_VALUE;
+        return scannedFuelPos;
+    }
+
+    private BlockPos scanFuelPos() {
         Direction nozzle = getThrustDirection();
         Direction back = nozzle.getOpposite();
         
@@ -335,7 +356,14 @@ public class BoosterThrusterBlockEntity extends SmartBlockEntity implements Bloc
         if (fuelPos != null) {
             level.setBlock(fuelPos, Blocks.AIR.defaultBlockState(), 3);
             fuelTicks = 200;
+            invalidateFuelCache();
         }
+    }
+
+    private void invalidateFuelCache() {
+        fuelCacheValid = false;
+        cachedFuelPos = null;
+        cachedFuelPosTick = Long.MIN_VALUE;
     }
 
     @Override
@@ -356,6 +384,7 @@ public class BoosterThrusterBlockEntity extends SmartBlockEntity implements Bloc
         isSpent = tag.getBoolean("Spent");
         fuelTicks = tag.getInt("FuelTicks");
         ignitionTicks = tag.getInt("IgnitionTicks");
+        invalidateFuelCache();
     }
 
     private void consumeFuel() {

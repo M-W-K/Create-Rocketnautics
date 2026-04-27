@@ -12,6 +12,7 @@ import net.minecraft.world.level.block.state.BlockState;
 import org.joml.Vector3d;
 
 public class VectorThrusterBlockEntity extends RocketThrusterBlockEntity {
+    private static final Direction[] DIRECTIONS = Direction.values();
 
     private float gimbalX = 0;
     private float gimbalY = 0;
@@ -48,7 +49,7 @@ public class VectorThrusterBlockEntity extends RocketThrusterBlockEntity {
         float gY = 0;
         float gZ = 0;
         
-        for (Direction dir : Direction.values()) {
+        for (Direction dir : DIRECTIONS) {
             if (dir.getAxis() != nozzle.getAxis()) {
                 int signal = level.getSignal(worldPosition.relative(dir), dir);
                 gX += dir.getStepX() * signal * 0.02f;

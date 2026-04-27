@@ -68,8 +68,8 @@ public class RCSThrusterBlockEntity extends RocketThrusterBlockEntity {
 
 
     public static void tick(Level level, BlockPos pos, BlockState state, RCSThrusterBlockEntity blockEntity) {
+        boolean active = blockEntity.isActive();
         if (!level.isClientSide) {
-            boolean active = blockEntity.isActive();
             if (active != blockEntity.currentlyBurning) {
                 blockEntity.currentlyBurning = active;
                 blockEntity.sendData();
@@ -79,7 +79,7 @@ public class RCSThrusterBlockEntity extends RocketThrusterBlockEntity {
         blockEntity.tick();
         
         if (level.isClientSide()) {
-            if (blockEntity.isActive()) {
+            if (active) {
                 Direction nozzle = blockEntity.getThrustDirection();
                 Vector3d pDir = new Vector3d(nozzle.getStepX(), nozzle.getStepY(), nozzle.getStepZ());
                 
@@ -99,7 +99,7 @@ public class RCSThrusterBlockEntity extends RocketThrusterBlockEntity {
             }
         }
         
-        if (blockEntity.isActive()) {
+        if (active) {
             if (blockEntity.ignitionTicks < 10) blockEntity.ignitionTicks++;
         } else {
             if (blockEntity.ignitionTicks > 0) blockEntity.ignitionTicks--;
