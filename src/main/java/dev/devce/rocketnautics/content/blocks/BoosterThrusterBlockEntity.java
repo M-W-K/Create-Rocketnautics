@@ -50,8 +50,8 @@ public class BoosterThrusterBlockEntity extends SmartBlockEntity implements Bloc
                 this, 
                 new CenteredSideValueBoxTransform((state, direction) -> direction != state.getValue(RocketThrusterBlock.FACING))
         );
-        thrustPower.between(1, 500);
-        thrustPower.withFormatter(v -> v + " N");
+        thrustPower.between(1, 50);
+        thrustPower.withFormatter(v -> (v * 10) + " N");
         thrustPower.setValue(5);
         
         behaviours.add(thrustPower);
@@ -186,7 +186,7 @@ public class BoosterThrusterBlockEntity extends SmartBlockEntity implements Bloc
         if (!isActive()) return;
         Direction facing = getThrustDirection();
         Direction pushDirection = facing.getOpposite();
-        double currentThrust = thrustPower.getValue();
+        double currentThrust = thrustPower.getValue() * 10.0;
         Vector3d thrustVector = new Vector3d(pushDirection.getStepX() * currentThrust, pushDirection.getStepY() * currentThrust, pushDirection.getStepZ() * currentThrust);
         
         Vector3d blockCenter = new Vector3d(worldPosition.getX() + 0.5, worldPosition.getY() + 0.5, worldPosition.getZ() + 0.5);
@@ -379,7 +379,7 @@ public class BoosterThrusterBlockEntity extends SmartBlockEntity implements Bloc
         
         int power = thrustPower.getValue();
         tooltip.add(Component.literal("  ").append(Component.translatable("rocketnautics.goggles.thrust")).append(": ")
-                .append(Component.literal(power + " N").withStyle(net.minecraft.ChatFormatting.GOLD)));
+                .append(Component.literal(power * 10 + " N").withStyle(net.minecraft.ChatFormatting.GOLD)));
         
         if (ignited && fuelTicks > 0) {
             tooltip.add(Component.literal("  ").append(Component.translatable("rocketnautics.goggles.burn_time")).append(": ")

@@ -73,8 +73,8 @@ public class RocketThrusterBlockEntity extends SmartBlockEntity implements Block
                 this, 
                 new CenteredSideValueBoxTransform((state, direction) -> direction != state.getValue(RocketThrusterBlock.FACING))
         );
-        minThrust.between(0, 500);
-        minThrust.withFormatter(v -> v + " N");
+        minThrust.between(0, 50);
+        minThrust.withFormatter(v -> (v * 10) + " N");
         minThrust.setValue(0);
         
         maxThrust = new ScrollValueBehaviour(
@@ -82,8 +82,8 @@ public class RocketThrusterBlockEntity extends SmartBlockEntity implements Block
                 this, 
                 new CenteredSideValueBoxTransform((state, direction) -> direction != state.getValue(RocketThrusterBlock.FACING))
         );
-        maxThrust.between(0, 500);
-        maxThrust.withFormatter(v -> v + " N");
+        maxThrust.between(0, 50);
+        maxThrust.withFormatter(v -> (v * 10) + " N");
         maxThrust.setValue(10);
         
         behaviours.add(minThrust);
@@ -227,7 +227,7 @@ public class RocketThrusterBlockEntity extends SmartBlockEntity implements Block
 
         Direction facing = getThrustDirection();
         Direction pushDirection = facing.getOpposite();
-        double currentThrust = getCurrentPower();
+        double currentThrust = getCurrentPower() * 10.0;
         
         Vector3d thrustVector = new Vector3d(
                 pushDirection.getStepX() * currentThrust,
@@ -360,7 +360,7 @@ public class RocketThrusterBlockEntity extends SmartBlockEntity implements Block
         
         int power = getCurrentPower();
         tooltip.add(Component.literal("  ").append(Component.translatable("rocketnautics.goggles.thrust")).append(": ")
-                .append(Component.literal(power + " N").withStyle(net.minecraft.ChatFormatting.GOLD)));
+                .append(Component.literal(power * 10 + " N").withStyle(net.minecraft.ChatFormatting.GOLD)));
         
         if (fuelTank.getFluidAmount() > 0) {
             tooltip.add(Component.literal("  ").append(Component.translatable("rocketnautics.goggles.fuel")).append(": ")
