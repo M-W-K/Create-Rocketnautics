@@ -39,7 +39,7 @@ public class NetworkHandler {
         registrar.playToClient(
             ReentryHeatPayload.TYPE,
             ReentryHeatPayload.CODEC,
-            (payload, context) -> context.enqueueWork(() -> handleHeatData(payload.subLevelId(), payload.intensity()))
+            (payload, context) -> context.enqueueWork(() -> handleHeatData(payload.x(), payload.y(), payload.z(), payload.intensity()))
         );
     }
 
@@ -97,7 +97,7 @@ public class NetworkHandler {
     }
 
     @net.neoforged.api.distmarker.OnlyIn(net.neoforged.api.distmarker.Dist.CLIENT)
-    private static void handleHeatData(java.util.UUID subLevelId, float intensity) {
-        dev.devce.rocketnautics.client.HeatClientHandler.updateHeat(subLevelId, intensity);
+    private static void handleHeatData(double x, double y, double z, float intensity) {
+        dev.devce.rocketnautics.client.HeatClientHandler.updateHeat(x, y, z, intensity);
     }
 }

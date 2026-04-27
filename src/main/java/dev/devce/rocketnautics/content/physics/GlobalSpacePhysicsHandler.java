@@ -8,9 +8,11 @@ import dev.ryanhcode.sable.sublevel.ServerSubLevel;
 import dev.ryanhcode.sable.sublevel.SubLevel;
 import dev.ryanhcode.sable.physics.config.dimension_physics.DimensionPhysicsData;
 import net.minecraft.resources.ResourceLocation;
+import dev.devce.rocketnautics.network.ReentryHeatPayload;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.world.phys.AABB;
 import net.minecraft.world.entity.ai.attributes.AttributeModifier;
 import net.minecraft.world.entity.ai.attributes.Attributes;
 import net.minecraft.world.entity.item.ItemEntity;
@@ -70,9 +72,9 @@ public class GlobalSpacePhysicsHandler {
         if (gravityOverride != null) {
             factor = 1.0 - gravityOverride;
         } else {
-            if (y <= 1000.0)
+            if (y <= 2000.0)
                 return;
-            factor = Math.clamp((y - 1000.0) / 4000.0, 0.0, 1.0);
+            factor = Math.clamp((y - 2000.0) / 3000.0, 0.0, 1.0);
         }
 
         if (factor <= 0.0)
@@ -95,30 +97,33 @@ public class GlobalSpacePhysicsHandler {
         if (worldPos == null) return;
 
         double y = worldPos.y();
-        // Heat happens between Y=500 and Y=1100 (ionosphere and upper atmosphere)
-        if (y > 1100 || y < 400) return;
+        // Heat happens between Y=1000 and Y=2500 (orbital entry phase)
+        if (y > 2500 || y < 1000) return;
 
-        Vector3d velocity = handle.getLinearVelocity();
-        double speed = -velocity.y(); // Descent speed
+        Vector3d velocity = new Vector3d(handle.getLinearVelocity());
+        double speed = -velocity.y(); // Descent speed in m/s
 
-        if (speed > 1.5) { // Threshold for heating (30 m/s)
-            float intensity = (float) Math.clamp((speed - 1.5) / 3.0, 0.0, 1.0);
+        if (speed > 60.0) { // High threshold (60 m/s) for cinematic entry
+            float intensity = (float) Math.clamp((speed - 60.0) / 60.0, 0.0, 1.0);
             
-            // Apply air resistance (friction) - optional, but realistic
-            Vector3d friction = new Vector3d(0, speed * intensity * 0.1, 0);
+            // Apply air resistance (friction) - significantly increased
+            Vector3d friction = new Vector3d(0, speed * intensity * 0.3, 0);
             handle.applyLinearImpulse(friction.mul(subLevel.getMassTracker().getMass() * timeStep));
 
             // Apply damage if too hot
-            if (intensity > 0.5 && level.getGameTime() % 20 == 0) {
-                subLevel.getEntities().forEach(entity -> {
-                    if (entity instanceof LivingEntity living) {
-                        living.hurt(level.damageSources().onFire(), intensity * 5.0f);
-                    }
+            if (intensity > 0.3 && level.getGameTime() % 20 == 0) {
+                Vector3d pos = subLevel.logicalPose().position();
+                AABB bounds = new AABB(pos.x - 4, pos.y - 4, pos.z - 4, pos.x + 4, pos.y + 4, pos.z + 4);
+                level.getEntitiesOfClass(LivingEntity.class, bounds).forEach(entity -> {
+                    entity.hurt(level.damageSources().onFire(), intensity * 3.0f);
                 });
             }
             
-            // Sync to client for particles
-            net.neoforged.neoforge.network.PacketDistributor.sendToPlayersInLevel(level, new ReentryHeatPayload(subLevel.getId(), intensity));
+            // Sync to client using coordinates
+            Vector3d pos = subLevel.logicalPose().position();
+            for (net.minecraft.server.level.ServerPlayer player : level.players()) {
+                net.neoforged.neoforge.network.PacketDistributor.sendToPlayer(player, new ReentryHeatPayload(pos.x, pos.y, pos.z, intensity));
+            }
         }
     }
 
@@ -174,10 +179,10 @@ public class GlobalSpacePhysicsHandler {
                 gravityAttr.removeModifier(SPACE_GRAVITY_ID);
             }
 
-            // Re-entry heat for falling entities
-            if (entity.getY() < 1000 && entity.getDeltaMovement().y() < -1.5) {
+            // Re-entry heat for falling entities (synced with space-entry phase)
+            if (entity.getY() > 1000 && entity.getY() < 2500 && entity.getDeltaMovement().y() < -3.0) {
                 double speed = -entity.getDeltaMovement().y();
-                float intensity = (float) Math.clamp((speed - 1.5) / 2.0, 0.0, 1.0);
+                float intensity = (float) Math.clamp((speed - 3.0) / 1.0, 0.0, 1.0);
                 
                 if (intensity > 0.1) {
                     entity.setRemainingFireTicks(40);
@@ -186,11 +191,12 @@ public class GlobalSpacePhysicsHandler {
                     }
                     if (entity.level().isClientSide) {
                         for (int i = 0; i < 5; i++) {
-                            entity.level().addParticle(net.minecraft.core.particles.ParticleTypes.FLAME, 
+                            entity.level().addParticle(dev.devce.rocketnautics.registry.RocketParticles.BLUE_FLAME.get(), 
                                 entity.getX(), entity.getY(), entity.getZ(), 0, 0.1, 0);
                         }
                     }
                 }
+            }
             }
         }
     }

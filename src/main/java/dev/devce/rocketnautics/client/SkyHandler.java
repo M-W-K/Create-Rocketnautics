@@ -30,8 +30,8 @@ public class SkyHandler {
         if (mc.level == null || mc.player == null) return;
 
         double y = mc.gameRenderer.getMainCamera().getPosition().y;
-        if (y > 3000.0) {
-            float factor = (float) Mth.clamp((y - 3000.0) / 2000.0, 0.0, 1.0);
+        if (y > 1000.0) {
+            float factor = (float) Mth.clamp((y - 1000.0) / 1000.0, 0.0, 1.0);
             
             event.setRed(Mth.lerp(factor, event.getRed(), 0.0f));
             event.setGreen(Mth.lerp(factor, event.getGreen(), 0.0f));
@@ -47,9 +47,9 @@ public class SkyHandler {
         if (mc.level == null || mc.player == null) return;
         
         double camY = mc.gameRenderer.getMainCamera().getPosition().y;
-        if (camY < 2000.0) return;
+        if (camY < 1000.0) return;
 
-        float visibility = (float) Mth.clamp((camY - 2000.0) / 2000.0, 0.0, 1.0);
+        float visibility = (float) Mth.clamp((camY - 1000.0) / 500.0, 0.0, 1.0);
         if (visibility <= 0) return;
 
         PoseStack poseStack = event.getPoseStack();
@@ -149,8 +149,8 @@ public class SkyHandler {
         if (mc.level == null || mc.player == null) return;
         
         double y = mc.gameRenderer.getMainCamera().getPosition().y;
-        if (y > 3000.0) {
-            float factor = (float) Mth.clamp((y - 3000.0) / 2000.0, 0.0, 1.0);
+        if (y > 1000.0) {
+            float factor = (float) Mth.clamp((y - 1000.0) / 1000.0, 0.0, 1.0);
             
             float start = event.getNearPlaneDistance();
             float end = event.getFarPlaneDistance();
