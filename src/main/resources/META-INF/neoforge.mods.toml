@@ -7,10 +7,9 @@ config="rocketnautics.mixins.json"
 
 [[mods]]
 modId="rocketnautics"
-version="1.3.2"
-displayName="Create: RocketNautics"
+version="1.3.0"
+displayName="Create: Rocketnautics"
 displayURL="https://github.com"
-updateJSONURL="https://raw.githubusercontent.com/webyep-art/Create-Rocketnautics-/refs/heads/master/update.json"
 authors="webyep, LordAret, SSnowly"
 description='''
 An addon for Create Aeronautics adding Rocket Thrusters!
