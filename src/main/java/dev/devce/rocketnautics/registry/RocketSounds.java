@@ -14,9 +14,6 @@ public class RocketSounds {
     public static final DeferredHolder<SoundEvent, SoundEvent> ROCKET_THRUST = SOUNDS.register("rocket_thrust",
             () -> SoundEvent.createVariableRangeEvent(ResourceLocation.fromNamespaceAndPath(RocketNautics.MODID, "rocket_thrust")));
 
-    public static final DeferredHolder<SoundEvent, SoundEvent> BRITTLE_RILLE = SOUNDS.register("music.brittle_rille",
-            () -> SoundEvent.createVariableRangeEvent(ResourceLocation.fromNamespaceAndPath(RocketNautics.MODID, "music.brittle_rille")));
-
     public static void register(IEventBus eventBus) {
         SOUNDS.register(eventBus);
     }

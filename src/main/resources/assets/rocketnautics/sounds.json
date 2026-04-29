@@ -8,14 +8,5 @@
         "stream": true
       }
     ]
-  },
-  "music.brittle_rille": {
-    "category": "music",
-    "sounds": [
-      {
-        "name": "rocketnautics:music/brittle_rille",
-        "stream": true
-      }
-    ]
   }
 }
