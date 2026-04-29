@@ -75,7 +75,7 @@ import java.util.Optional;
 public class SpaceTransitionHandler {
     
     // Thresholds
-    private static final double OVERWORLD_SPACE_Y = 20000.0;
+    public static final double OVERWORLD_SPACE_Y = 20000.0;
     private static final double SPACE_EXIT_Y = 0.0;
     private static final double TRANSITION_SAFE_OFFSET = 50.0;
     private static final int REBUILD_DELAY_TICKS = 3;   // 0.15s — минимум для загрузки чанков
@@ -99,7 +99,7 @@ public class SpaceTransitionHandler {
     private static final String KEY_POSE_QZ = "qz";
     private static final String KEY_POSE_QW = "qw";
 
-    private static final ResourceKey<Level> SPACE_DIM = ResourceKey.create(Registries.DIMENSION, 
+    public static final ResourceKey<Level> SPACE_DIM = ResourceKey.create(Registries.DIMENSION,
         ResourceLocation.fromNamespaceAndPath(RocketNautics.MODID, "space"));
 
     private static final Path SHIPS_DIR = FMLPaths.CONFIGDIR.get().resolve("rocketnautics_ships");
