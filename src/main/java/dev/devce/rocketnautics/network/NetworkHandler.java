@@ -67,9 +67,8 @@ public class NetworkHandler {
 
     private static void handleMapRequest(net.minecraft.world.entity.player.Player rawPlayer, int powerSize) {
         if (!(rawPlayer instanceof ServerPlayer player)) return;
-        ServerLevel level = player.getServer().getLevel(net.minecraft.world.level.Level.OVERWORLD);
-        if (level == null) return;
-        
+        ServerLevel level = player.serverLevel();
+
         // Run generation async to avoid server lag
         CompletableFuture.runAsync(() -> {
             SkyDataHandler handler = SkyDataHandler.getHandlerForLevel(level);

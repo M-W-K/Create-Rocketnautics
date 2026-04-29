@@ -1,9 +1,14 @@
 package dev.devce.rocketnautics;
 
+import dev.devce.rocketnautics.content.physics.SpaceTransitionHandler;
 import dev.devce.rocketnautics.network.PlanetMapPayload;
+import it.unimi.dsi.fastutil.doubles.DoubleObjectPair;
+import it.unimi.dsi.fastutil.ints.IntObjectPair;
 import net.minecraft.core.Holder;
+import net.minecraft.resources.ResourceKey;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.tags.BiomeTags;
+import net.minecraft.world.level.Level;
 import net.minecraft.world.level.biome.Biome;
 import net.minecraft.world.level.biome.BiomeSource;
 import net.minecraft.world.level.biome.Climate;
@@ -22,6 +27,13 @@ public class SkyDataHandler {
 
     public static final Map<ServerLevel, SkyDataHandler> HANDLERS = new HashMap<>();
 
+    // level -> height offset, level to pull from
+    public static final Map<ResourceKey<Level>, DoubleObjectPair<ResourceKey<Level>>> OVERRIDES = new HashMap<>();
+
+    static {
+        OVERRIDES.put(SpaceTransitionHandler.SPACE_DIM, DoubleObjectPair.of(SpaceTransitionHandler.OVERWORLD_SPACE_Y, Level.OVERWORLD));
+    }
+
     public final ServerLevel level;
     protected final RecursiveDataSquare root;
 
@@ -31,7 +43,18 @@ public class SkyDataHandler {
         this.root = new RecursiveDataSquare(null, MAX_POWER_SIZE + 1, -MAX_TRUE_SIZE, -MAX_TRUE_SIZE);
     }
 
+    // client and server (used on client)
+    public static double getHeightOffsetForLevel(ResourceKey<Level> level) {
+        DoubleObjectPair<ResourceKey<Level>> pair = OVERRIDES.get(level);
+        if (pair == null) return 0;
+        return pair.firstDouble();
+    }
+
+    // server only
     public static SkyDataHandler getHandlerForLevel(ServerLevel level) {
+        if (OVERRIDES.containsKey(level.dimension())) {
+            level = level.getServer().getLevel(OVERRIDES.get(level.dimension()).right());
+        }
         return HANDLERS.computeIfAbsent(level, SkyDataHandler::new);
     }
 

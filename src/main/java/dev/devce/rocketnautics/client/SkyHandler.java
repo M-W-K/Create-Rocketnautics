@@ -48,7 +48,7 @@ public class SkyHandler {
         if (mc.level == null || mc.player == null) return;
 
         Camera camera = mc.gameRenderer.getMainCamera();
-        double camY = camera.getPosition().y;
+        double camY = camera.getPosition().y + SkyDataHandler.getHeightOffsetForLevel(mc.level.dimension());
         if (camY < 1000.0) return;
 
         float visibility = (float) Mth.clamp((camY - 1000.0) / 500.0, 0.0, 1.0);
@@ -64,7 +64,7 @@ public class SkyHandler {
         invRot.conjugate();
         poseStack.mulPose(invRot);
 
-        float renderDist = 20.0f;
+        int renderDist = mc.options.renderDistance().get();
         float parallaxFactor = (float) (renderDist / Math.max(100.0, camY)); 
         double camX = camera.getPosition().x;
         double camZ = camera.getPosition().z;
