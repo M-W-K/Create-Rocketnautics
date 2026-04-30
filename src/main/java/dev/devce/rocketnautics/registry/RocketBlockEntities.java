@@ -40,17 +40,7 @@ public class RocketBlockEntities {
     }
 
     private static void registerCapabilities(RegisterCapabilitiesEvent event) {
-        event.registerBlockEntity(Capabilities.FluidHandler.BLOCK, ROCKET_THRUSTER.get(), (be, side) -> {
-            if (side == null || side == be.getThrustDirection().getOpposite()) {
-                return be.fuelTank;
-            }
-            return null;
-        });
-        event.registerBlockEntity(Capabilities.FluidHandler.BLOCK, VECTOR_THRUSTER.get(), (be, side) -> {
-            if (side == null || side == be.getThrustDirection().getOpposite()) {
-                return be.fuelTank;
-            }
-            return null;
-        });
+        event.registerBlockEntity(Capabilities.FluidHandler.BLOCK, ROCKET_THRUSTER.get(), (be, side) -> be.fuelTank);
+        event.registerBlockEntity(Capabilities.FluidHandler.BLOCK, VECTOR_THRUSTER.get(), (be, side) -> be.fuelTank);
     }
 }

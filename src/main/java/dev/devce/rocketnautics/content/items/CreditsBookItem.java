@@ -11,10 +11,7 @@ import net.minecraft.world.item.component.WrittenBookContent;
 
 import java.util.List;
 
-/**
- * Кастомный предмет-книга кредитов. Возвращает WrittenBook с заполненным содержимым
- * через getDefaultInstance(), что позволяет использовать его в Simulated CreativeTab.
- */
+
 public class CreditsBookItem extends Item {
 
     public CreditsBookItem(Properties properties) {

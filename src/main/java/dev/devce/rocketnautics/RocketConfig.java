@@ -1,0 +1,77 @@
+package dev.devce.rocketnautics;
+
+import net.neoforged.neoforge.common.ModConfigSpec;
+import org.apache.commons.lang3.tuple.Pair;
+
+public class RocketConfig {
+    public static final ModConfigSpec SERVER_SPEC;
+    public static final Server SERVER;
+
+    public static final ModConfigSpec CLIENT_SPEC;
+    public static final Client CLIENT;
+
+    static {
+        final Pair<Server, ModConfigSpec> specPair = new ModConfigSpec.Builder().configure(Server::new);
+        SERVER_SPEC = specPair.getRight();
+        SERVER = specPair.getLeft();
+
+        final Pair<Client, ModConfigSpec> clientPair = new ModConfigSpec.Builder().configure(Client::new);
+        CLIENT_SPEC = clientPair.getRight();
+        CLIENT = clientPair.getLeft();
+    }
+
+    public static class Server {
+        public final ModConfigSpec.IntValue maxFuelConsumption;
+        public final ModConfigSpec.DoubleValue jetpackThrust;
+        public final ModConfigSpec.DoubleValue jetpackSprintThrust;
+        public final ModConfigSpec.IntValue ignitionFlow;
+        public final ModConfigSpec.IntValue steamMinFlow;
+
+        public Server(ModConfigSpec.Builder builder) {
+            builder.push("Thrusters");
+            maxFuelConsumption = builder
+                    .comment("Maximum fuel consumption in mB/tick")
+                    .defineInRange("maxFuelConsumption", 40, 1, 1000);
+            ignitionFlow = builder
+                    .comment("Flow threshold for full ignition (mB/tick)")
+                    .defineInRange("ignitionFlow", 5, 1, 100);
+            steamMinFlow = builder
+                    .comment("Flow threshold for pre-ignition steam phase (mB/tick)")
+                    .defineInRange("steamMinFlow", 2, 1, 100);
+            builder.pop();
+
+            builder.push("Jetpack");
+            jetpackThrust = builder
+                    .comment("Standard thrust power of the jetpack")
+                    .defineInRange("jetpackThrust", 0.15, 0.01, 1.0);
+            jetpackSprintThrust = builder
+                    .comment("Thrust power of the jetpack while sprinting")
+                    .defineInRange("jetpackSprintThrust", 0.35, 0.01, 2.0);
+            builder.pop();
+        }
+    }
+
+    public static class Client {
+        public final ModConfigSpec.DoubleValue shakeIntensity;
+        public final ModConfigSpec.DoubleValue shakeRadius;
+        public final ModConfigSpec.BooleanValue enableDynamicRenderDistance;
+        public final ModConfigSpec.BooleanValue showDebugOverlay;
+
+        public Client(ModConfigSpec.Builder builder) {
+            builder.push("Visuals");
+            shakeIntensity = builder
+                    .comment("Intensity multiplier for camera shake near engines")
+                    .defineInRange("shakeIntensity", 0.5, 0.0, 5.0);
+            shakeRadius = builder
+                    .comment("Radius in blocks where camera shake is felt")
+                    .defineInRange("shakeRadius", 8.0, 1.0, 64.0);
+            enableDynamicRenderDistance = builder
+                    .comment("Enable automatic render distance adjustment based on altitude")
+                    .define("enableDynamicRenderDistance", true);
+            showDebugOverlay = builder
+                    .comment("Show the Cosmonautics debug overlay (Alt/Speed/etc)")
+                    .define("showDebugOverlay", false);
+            builder.pop();
+        }
+    }
+}

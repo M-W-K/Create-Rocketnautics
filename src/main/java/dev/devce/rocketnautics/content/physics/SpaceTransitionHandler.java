@@ -81,8 +81,8 @@ public class SpaceTransitionHandler {
     public static final double OVERWORLD_SPACE_Y = 20000.0;
     private static final double SPACE_EXIT_Y = 0.0;
     private static final double TRANSITION_SAFE_OFFSET = 50.0;
-    private static final int REBUILD_DELAY_TICKS = 3;   // 0.15s — минимум для загрузки чанков
-    private static final int SEATING_RECOVERY_TIMEOUT = 30; // 1.5s — достаточно для plot-tracking
+    private static final int REBUILD_DELAY_TICKS = 3;
+    private static final int SEATING_RECOVERY_TIMEOUT = 30;
 
     // NBT Keys
     private static final String KEY_PLAYER_REL_X = "player_rel_x";

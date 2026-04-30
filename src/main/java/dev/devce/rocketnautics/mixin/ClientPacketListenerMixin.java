@@ -20,7 +20,6 @@ public class ClientPacketListenerMixin {
         )
     )
     private void rocketnautics$redirectSetScreen(Minecraft instance, Screen screen) {
-        // Используем обновленный счетчик тиков
         if (RocketNauticsClient.seamlessTransitionTicks > 0 && screen instanceof ReceivingLevelScreen) {
             return;
         }

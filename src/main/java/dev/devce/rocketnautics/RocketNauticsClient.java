@@ -4,6 +4,8 @@ import net.minecraft.client.DeltaTracker;
 
 import dev.devce.rocketnautics.content.blocks.VectorThrusterRenderer;
 import dev.devce.rocketnautics.content.particles.RocketExhaustParticle;
+import dev.devce.rocketnautics.RocketConfig;
+import dev.devce.rocketnautics.client.RocketSettingsScreen;
 import dev.devce.rocketnautics.registry.RocketBlockEntities;
 import dev.devce.rocketnautics.registry.RocketParticles;
 import dev.devce.rocketnautics.registry.RocketPartials;
@@ -47,8 +49,17 @@ public class RocketNauticsClient {
     private static final int PANEL_BORDER = 0xEE333333;
 
     public static int originalRenderDistance = -1;
+    public static final net.minecraft.client.KeyMapping JETPACK_TOGGLE = new net.minecraft.client.KeyMapping(
+            "key.rocketnautics.toggle_jetpack",
+            com.mojang.blaze3d.platform.InputConstants.Type.KEYSYM,
+            org.lwjgl.glfw.GLFW.GLFW_KEY_G,
+            "key.categories.rocketnautics"
+    );
     public static int seamlessTransitionTicks = 0;
-    public static boolean showDebugOverlay = false;
+    
+    public static boolean isDebugOverlayEnabled() {
+        return RocketConfig.CLIENT.showDebugOverlay.get();
+    }
     
     private static final List<LogEntry> debugLogs = Collections.synchronizedList(new ArrayList<>());
 
@@ -95,7 +106,7 @@ public class RocketNauticsClient {
 
     private static void renderDebugOverlays(GuiGraphics guiGraphics, DeltaTracker deltaTracker) {
         Minecraft mc = Minecraft.getInstance();
-        if (mc.options.hideGui || !showDebugOverlay) return;
+        if (mc.options.hideGui || !isDebugOverlayEnabled()) return;
 
         renderBottomStatusBar(guiGraphics, mc);
 
@@ -236,6 +247,10 @@ public class RocketNauticsClient {
     public static void onClientSetup(FMLClientSetupEvent event) {
         RocketPartials.init();
         
+        // Register Config Screen via Extension Point (Alternative to event)
+        net.neoforged.fml.ModLoadingContext.get().registerExtensionPoint(net.neoforged.neoforge.client.gui.IConfigScreenFactory.class, 
+            () -> (client, parent) -> new RocketSettingsScreen(parent));
+
         event.enqueueWork(() -> {
             net.minecraft.client.renderer.ItemBlockRenderTypes.setRenderLayer(dev.devce.rocketnautics.registry.RocketBlocks.SEPARATOR.get(), net.minecraft.client.renderer.RenderType.cutout());
         });
@@ -258,7 +273,7 @@ public class RocketNauticsClient {
 
     @SubscribeEvent
     public static void onRenderLevelStage(RenderLevelStageEvent event) {
-        if (!showDebugOverlay || event.getStage() != RenderLevelStageEvent.Stage.AFTER_ENTITIES) return;
+        if (!isDebugOverlayEnabled() || event.getStage() != RenderLevelStageEvent.Stage.AFTER_ENTITIES) return;
         
         Minecraft mc = Minecraft.getInstance();
         if (mc.player == null || mc.level == null) return;

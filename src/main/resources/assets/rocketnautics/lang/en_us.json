@@ -40,5 +40,12 @@
   "rocketnautics.ponder.rocket_thruster.text_3": "The engine activates when fuel is pumped into it. Adjust pump RPM to control thrust.",
   "rocketnautics.ponder.rocket_thruster.text_4": "Warning: The exhaust is extremely hot! It will melt blocks and damage entities.",
   "rocketnautics.ponder.rocket_thruster.text_5": "The engine must be attached to a Fluid Tank to function.",
-  "rocketnautics.ponder.rocket_thruster.text_6": "Fill the tank with Lava to provide fuel for the thruster."
+  "rocketnautics.ponder.rocket_thruster.text_6": "Fill the tank with Lava to provide fuel for the thruster.",
+  "item.rocketnautics.jetpack": "RocketNautics Jetpack",
+  "item.rocketnautics.jetpack.tooltip.desc": "For those who find gravity a bit too clingy.",
+  "item.rocketnautics.jetpack.tooltip.control": "Press [G] to toggle systems. Hold [Space] to defy physics.",
+  "rocketnautics.jetpack.enabled": "[Jetpack Systems Online]",
+  "rocketnautics.jetpack.disabled": "[Jetpack Systems Offline]",
+  "key.rocketnautics.toggle_jetpack": "Toggle Jetpack Mode",
+  "key.categories.rocketnautics": "RocketNautics"
 }

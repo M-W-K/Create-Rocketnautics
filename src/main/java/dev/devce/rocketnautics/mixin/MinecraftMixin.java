@@ -14,11 +14,8 @@ public class MinecraftMixin {
 
     @Inject(method = "setScreen", at = @At("HEAD"), cancellable = true)
     private void rocketnautics$onSetScreen(Screen screen, CallbackInfo ci) {
-        // Если счетчик тиков бесшовного перехода еще не истек
         if (RocketNauticsClient.seamlessTransitionTicks > 0) {
-            // Если игра пытается показать экран загрузки ("Receiving Level" или "Loading Terrain")
             if (screen instanceof ReceivingLevelScreen) {
-                // ОТМЕНЯЕМ установку этого экрана. Игрок продолжит видеть мир.
                 ci.cancel();
             }
         }
@@ -26,7 +23,6 @@ public class MinecraftMixin {
 
     @Inject(method = "tick", at = @At("HEAD"))
     private void rocketnautics$onTick(CallbackInfo ci) {
-        // Уменьшаем счетчик тиков бесшовности в каждом кадре
         if (RocketNauticsClient.seamlessTransitionTicks > 0) {
             RocketNauticsClient.seamlessTransitionTicks--;
         }

@@ -10,6 +10,7 @@ import net.neoforged.neoforge.common.NeoForge;
 import net.neoforged.bus.api.SubscribeEvent;
 import net.neoforged.neoforge.event.RegisterCommandsEvent;
 import dev.devce.rocketnautics.content.commands.GravityCommand;
+import dev.devce.rocketnautics.content.commands.JetpackCommand;
 import dev.devce.rocketnautics.content.commands.ShipCopyPasteCommand;
 import net.neoforged.fml.common.Mod;
 import dev.devce.rocketnautics.content.physics.GlobalSpacePhysicsHandler;
@@ -17,15 +18,19 @@ import net.neoforged.fml.event.lifecycle.FMLCommonSetupEvent;
 import org.slf4j.Logger;
 import com.mojang.logging.LogUtils;
 
+import net.neoforged.fml.config.ModConfig;
+
 @Mod(RocketNautics.MODID)
 public class RocketNautics {
     public static final String MODID = "rocketnautics";
     public static final Logger LOGGER = LogUtils.getLogger();
 
-    public RocketNautics(IEventBus modEventBus) {
+    public RocketNautics(IEventBus modEventBus, net.neoforged.fml.ModContainer modContainer) {
         LOGGER.info("Initializing RocketNautics!");
+        
+        modContainer.registerConfig(ModConfig.Type.SERVER, (net.neoforged.fml.config.IConfigSpec) RocketConfig.SERVER_SPEC);
+        modContainer.registerConfig(ModConfig.Type.CLIENT, (net.neoforged.fml.config.IConfigSpec) RocketConfig.CLIENT_SPEC);
 
-        // Расширяем лимиты высоты Sable для наших орбит (делаем это как можно раньше)
         try {
             dev.ryanhcode.sable.SableConfig.SUB_LEVEL_REMOVE_MIN.set(-1000000.0);
             dev.ryanhcode.sable.SableConfig.SUB_LEVEL_REMOVE_MAX.set(1000000.0);
@@ -50,7 +55,6 @@ public class RocketNautics {
     private void setup(final FMLCommonSetupEvent event) {
         LOGGER.info("RocketNautics Setup");
         event.enqueueWork(() -> {
-            // Расширяем лимиты высоты Sable (используем enqueueWork для надежности)
             try {
                 dev.ryanhcode.sable.SableConfig.SUB_LEVEL_REMOVE_MIN.set(-1000000.0);
                 dev.ryanhcode.sable.SableConfig.SUB_LEVEL_REMOVE_MAX.set(1000000.0);
@@ -65,6 +69,7 @@ public class RocketNautics {
     public void onRegisterCommands(RegisterCommandsEvent event) {
         GravityCommand.register(event.getDispatcher());
         ShipCopyPasteCommand.register(event.getDispatcher());
+        JetpackCommand.register(event.getDispatcher());
         dev.devce.rocketnautics.content.commands.AsteroidCommand.register(event.getDispatcher());
     }
 }

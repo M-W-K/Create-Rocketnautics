@@ -51,6 +51,9 @@ public class RocketBlocks {
     public static final DeferredItem<CreditsBookItem> CREDITS_BOOK = ITEMS.register("credits_book",
             () -> new CreditsBookItem(new Item.Properties().stacksTo(1)));
 
+    public static final DeferredItem<dev.devce.rocketnautics.content.items.JetpackItem> JETPACK = ITEMS.register("jetpack",
+            () -> new dev.devce.rocketnautics.content.items.JetpackItem(new Item.Properties().stacksTo(1)));
+
     private static <T extends Block> DeferredBlock<T> registerBlock(String name, Supplier<T> block) {
         DeferredBlock<T> toReturn = BLOCKS.register(name, block);
         registerBlockItem(name, toReturn);

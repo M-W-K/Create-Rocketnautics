@@ -7,51 +7,81 @@ import net.neoforged.api.distmarker.Dist;
 import net.neoforged.bus.api.SubscribeEvent;
 import net.neoforged.fml.common.EventBusSubscriber;
 import net.neoforged.neoforge.client.event.ClientTickEvent;
+import net.neoforged.neoforge.client.event.ViewportEvent;
+import dev.devce.rocketnautics.content.physics.JetpackHandler;
+import net.minecraft.util.Mth;
+import dev.devce.rocketnautics.client.CameraShakeHandler;
+import dev.devce.rocketnautics.RocketConfig;
 
 @EventBusSubscriber(modid = RocketNautics.MODID, bus = EventBusSubscriber.Bus.GAME, value = Dist.CLIENT)
 public class RocketNauticsClientEvents {
+    private static float currentRoll = 0;
+    private static float prevRoll = 0;
 
     @SubscribeEvent
     public static void onClientTick(ClientTickEvent.Post event) {
         Minecraft mc = Minecraft.getInstance();
         if (mc.level == null || mc.player == null) return;
 
-        // 1. Обработка таймера бесшовности (только блокировка экранов)
         if (RocketNauticsClient.seamlessTransitionTicks > 0) {
             RocketNauticsClient.seamlessTransitionTicks--;
-            // Мы больше не форсируем восстановление здесь, 
-            // чтобы оно не конфликтовало с логикой высоты ниже.
             return;
         }
 
-        // 2. Динамическая дистанция прорисовки (дискретные шаги)
-        double y = mc.player.getY();
-        String dim = mc.level.dimension().location().getPath();
-        int currentDist = mc.options.renderDistance().get();
-        
-        if (RocketNauticsClient.originalRenderDistance == -1) {
-            RocketNauticsClient.originalRenderDistance = currentDist;
+        if (RocketConfig.CLIENT.enableDynamicRenderDistance.get()) {
+            double y = mc.player.getY();
+            String dim = mc.level.dimension().location().getPath();
+            int currentDist = mc.options.renderDistance().get();
+            
+            if (RocketNauticsClient.originalRenderDistance == -1) {
+                RocketNauticsClient.originalRenderDistance = currentDist;
+            }
+
+            int targetDist = RocketNauticsClient.originalRenderDistance;
+
+            if (dim.equals("overworld")) {
+                if (y > 19500) targetDist = 2;
+                else if (y > 19000) targetDist = 4;
+                else if (y > 18000) targetDist = 8;
+                else if (y > 15000) targetDist = 12;
+            } else if (dim.equals("space")) {
+                if (y < 200) targetDist = 2;
+                else if (y < 400) targetDist = 4;
+                else if (y < 600) targetDist = 8;
+                else if (y < 800) targetDist = 12;
+            }
+
+            if (mc.level.getGameTime() % 10 == 0 && targetDist != currentDist) {
+                int nextDist = currentDist < targetDist ? Math.min(currentDist + 2, targetDist) : Math.max(currentDist - 2, targetDist);
+                mc.options.renderDistance().set(nextDist);
+            }
         }
 
-        int targetDist = RocketNauticsClient.originalRenderDistance;
-
-        if (dim.equals("overworld")) {
-            if (y > 19500) targetDist = 2;
-            else if (y > 19000) targetDist = 4;
-            else if (y > 18000) targetDist = 8;
-            else if (y > 15000) targetDist = 12;
-        } else if (dim.equals("space")) {
-            // В космосе чанков мало, можно восстанавливать быстрее
-            if (y < 200) targetDist = 2;
-            else if (y < 400) targetDist = 4;
-            else if (y < 600) targetDist = 8;
-            else if (y < 800) targetDist = 12;
+        // 3. Jetpack Toggle Key Handling
+        while (RocketNauticsClient.JETPACK_TOGGLE.consumeClick()) {
+            // Only toggle if wearing the jetpack
+            if (mc.player.getItemBySlot(net.minecraft.world.entity.EquipmentSlot.CHEST).getItem() instanceof dev.devce.rocketnautics.content.items.JetpackItem) {
+                net.neoforged.neoforge.network.PacketDistributor.sendToServer(new dev.devce.rocketnautics.network.JetpackTogglePayload());
+            }
         }
 
-        // Обновляем только каждые 10 тиков (0.5 сек), чтобы не перегружать движок
-        if (mc.level.getGameTime() % 10 == 0 && targetDist != currentDist) {
-            int nextDist = currentDist < targetDist ? Math.min(currentDist + 2, targetDist) : Math.max(currentDist - 2, targetDist);
-            mc.options.renderDistance().set(nextDist);
+        // 4. Jetpack logic
+        if (JetpackHandler.isActive(mc.player)) {
+            if (mc.player.level().getGameTime() % 2 == 0) {
+                // Particles handled by JetpackHandler
+            }
         }
+
+        // 5. Camera Shake Tick
+        CameraShakeHandler.tick();
+    }
+
+    @SubscribeEvent
+    public static void onComputeCameraAngles(ViewportEvent.ComputeCameraAngles event) {
+        float[] angles = new float[]{event.getPitch(), event.getYaw(), event.getRoll()};
+        CameraShakeHandler.applyShake((float)event.getPartialTick(), angles);
+        event.setPitch(angles[0]);
+        event.setYaw(angles[1]);
+        event.setRoll(angles[2]);
     }
 }

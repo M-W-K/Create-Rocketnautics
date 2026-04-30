@@ -22,5 +22,12 @@
   "rocketnautics.goggles.thrust": "Тяга",
   "rocketnautics.goggles.fuel": "Топливо",
   "rocketnautics.goggles.burn_time": "Время горения",
-  "rocketnautics.goggles.fuel_usage": "Подача топлива"
+  "rocketnautics.goggles.fuel_usage": "Подача топлива",
+  "item.rocketnautics.jetpack": "Реактивный ранец RocketNautics",
+  "item.rocketnautics.jetpack.tooltip.desc": "Позволяет смотреть на проблемы свысока. Буквально.",
+  "item.rocketnautics.jetpack.tooltip.control": "Нажми [G] для запуска систем. Зажми [Пробел] для взлета.",
+  "rocketnautics.jetpack.enabled": "[Системы ранца активны]",
+  "rocketnautics.jetpack.disabled": "[Системы ранца отключены]",
+  "key.rocketnautics.toggle_jetpack": "Переключить режим джетпака",
+  "key.categories.rocketnautics": "RocketNautics"
 }

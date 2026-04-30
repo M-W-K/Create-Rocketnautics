@@ -46,7 +46,6 @@ public class SeparatorBlock extends DirectionalBlock {
         BlockState clickedState = context.getLevel().getBlockState(clickedPos);
         
         if (clickedState.getBlock() == this) {
-            // Если мы кликаем по сепаратору, инвертируем его направление для нового блока
             facing = clickedState.getValue(FACING).getOpposite();
         }
         
@@ -66,7 +65,6 @@ public class SeparatorBlock extends DirectionalBlock {
         BlockState state = level.getBlockState(pos);
         if (!(state.getBlock() instanceof SeparatorBlock)) return;
 
-        // Удаляем блок перед рекурсией, чтобы избежать бесконечного цикла
         level.removeBlock(pos, false);
         level.playSound(null, pos, SoundEvents.GENERIC_EXPLODE.value(), SoundSource.BLOCKS, 0.5f, 1.5f + level.random.nextFloat());
 
@@ -80,12 +78,10 @@ public class SeparatorBlock extends DirectionalBlock {
             }
         }
 
-        // Проверяем всех соседей (6 сторон)
         for (Direction direction : Direction.values()) {
             BlockPos neighborPos = pos.relative(direction);
             BlockState neighborState = level.getBlockState(neighborPos);
             if (neighborState.getBlock() instanceof SeparatorBlock) {
-                // Небольшая задержка не нужна, мы хотим мгновенную реакцию
                 triggerChainReaction(level, neighborPos);
             }
         }

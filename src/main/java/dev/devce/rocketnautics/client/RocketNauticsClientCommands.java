@@ -36,10 +36,12 @@ public class RocketNauticsClientCommands {
         Minecraft mc = Minecraft.getInstance();
         if (mc.player == null) return;
 
-        RocketNauticsClient.showDebugOverlay = !RocketNauticsClient.showDebugOverlay;
+        boolean newState = !dev.devce.rocketnautics.RocketConfig.CLIENT.showDebugOverlay.get();
+        dev.devce.rocketnautics.RocketConfig.CLIENT.showDebugOverlay.set(newState);
+        dev.devce.rocketnautics.RocketConfig.CLIENT.showDebugOverlay.save();
         
-        String status = RocketNauticsClient.showDebugOverlay ? "ENABLED" : "DISABLED";
-        ChatFormatting color = RocketNauticsClient.showDebugOverlay ? ChatFormatting.GREEN : ChatFormatting.RED;
+        String status = newState ? "ENABLED" : "DISABLED";
+        ChatFormatting color = newState ? ChatFormatting.GREEN : ChatFormatting.RED;
         
         mc.player.displayClientMessage(Component.literal("Cosmonautics Debug System: ")
             .append(Component.literal(status).withStyle(color))

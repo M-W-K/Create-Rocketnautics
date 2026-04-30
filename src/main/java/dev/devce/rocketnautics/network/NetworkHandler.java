@@ -26,6 +26,12 @@ public class NetworkHandler {
         PayloadRegistrar registrar = event.registrar(RocketNautics.MODID).versioned("1.0");
         
         registrar.playToServer(
+            JetpackTogglePayload.TYPE,
+            JetpackTogglePayload.CODEC,
+            (payload, context) -> context.enqueueWork(() -> dev.devce.rocketnautics.content.physics.JetpackHandler.toggle((ServerPlayer) context.player()))
+        );
+
+        registrar.playToServer(
             PlanetMapRequestPayload.TYPE,
             PlanetMapRequestPayload.CODEC,
             (payload, context) -> context.enqueueWork(() -> handleMapRequest(context.player(), payload.powerSize()))
@@ -54,6 +60,17 @@ public class NetworkHandler {
             DebugLogPayload.CODEC,
             (payload, context) -> context.enqueueWork(() -> dev.devce.rocketnautics.RocketNauticsClient.addLog(payload.message(), payload.color()))
         );
+
+        registrar.playToClient(
+            JetpackPayload.TYPE,
+            JetpackPayload.CODEC,
+            (payload, context) -> context.enqueueWork(() -> handleJetpackState(payload.entityId(), payload.active()))
+        );
+    }
+
+    @net.neoforged.api.distmarker.OnlyIn(net.neoforged.api.distmarker.Dist.CLIENT)
+    private static void handleJetpackState(int entityId, boolean active) {
+        dev.devce.rocketnautics.content.physics.JetpackHandler.setEntityActive(entityId, active);
     }
 
     @net.neoforged.api.distmarker.OnlyIn(net.neoforged.api.distmarker.Dist.CLIENT)
